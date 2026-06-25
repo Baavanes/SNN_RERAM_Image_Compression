@@ -1,0 +1,9 @@
+CARAVEL_ROOT: /home/vboxuser/SNN_RERAM_Image_Compression/caravel
+MCW_ROOT: /home/vboxuser/SNN_RERAM_Image_Compression/mgmt_core_wrapper
+PDK: sky130A
+PDK_ROOT: /home/vboxuser/SNN_RERAM_Image_Compression/dependencies/pdks
+USER_PROJECT_ROOT: /home/vboxuser/SNN_RERAM_Image_Compression
+caravan: false
+clk: 25
+emailto:
+  - null
