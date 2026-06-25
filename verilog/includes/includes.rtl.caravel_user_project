@@ -14,7 +14,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Caravel user project includes
--v $(USER_PROJECT_VERILOG)/rtl/Neuromorphic_X1_Beh.v
+-v $(USER_PROJECT_VERILOG)/../ip/Neuromorphic_X1_32x32/hdl/beh_model/Neuromorphic_X1_Beh.v
 -v $(USER_PROJECT_VERILOG)/rtl/nvm_core_decoder.v
 -v $(USER_PROJECT_VERILOG)/rtl/nvm_synapse_matrix.v
 -v $(USER_PROJECT_VERILOG)/rtl/nvm_neuron_block.v
