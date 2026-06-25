@@ -1,0 +1,104 @@
+{
+  "//": "Design files",
+  "VERILOG_FILES": [
+    "dir::../../verilog/rtl/defines.v",
+    "dir::../../verilog/rtl/user_project_wrapper.v",
+    "dir::../../verilog/rtl/image_compression_storage.v",
+    "dir::../../verilog/rtl/nvm_core_decoder.v",
+    "dir::../../verilog/rtl/nvm_neuron_block.v",
+    "dir::../../verilog/rtl/nvm_neuron_core_256x64.v",
+    "dir::../../verilog/rtl/nvm_neuron_spike_out.v",
+    "dir::../../verilog/rtl/nvm_synapse_matrix.v"
+  ],
+
+  "MAGIC_EXT_USE_GDS": true,
+  "MAGIC_EXT_ABSTRACT_CELLS": ["Neuromorphic_X1_wb"],
+  "PNR_SDC_FILE": "dir::signoff.sdc",
+
+  "SYNTH_ELABORATE_ONLY": false,
+  "RUN_POST_GPL_DESIGN_REPAIR": true,
+  "RUN_POST_CTS_RESIZER_TIMING": true,
+  "DESIGN_REPAIR_BUFFER_INPUT_PORTS": true,
+  "FP_PDN_ENABLE_RAILS": true,
+  "RUN_ANTENNA_REPAIR": true,
+  "RUN_FILL_INSERTION": true,
+  "RUN_TAP_ENDCAP_INSERTION": true,
+  "RUN_CTS": true,
+  "RUN_IRDROP_REPORT": false,
+  "ERROR_ON_SYNTH_CHECKS": false,
+
+  "GRT_ALLOW_CONGESTION": true,
+  "GRT_OVERFLOW_ITERS": 300,
+  "PL_TARGET_DENSITY_PCT": 20,
+  "RUN_HEURISTIC_DIODE_INSERTION": true,
+
+  "FP_PDN_CFG": "dir::pdn_override_1.tcl",
+  "FP_PDN_MULTILAYER": true,
+  "FP_PDN_VERTICAL_LAYER": "met4",
+  "FP_PDN_HORIZONTAL_LAYER": "met5",
+  "ERROR_ON_PDN_VIOLATIONS": true,
+  "IGNORE_DISCONNECTED_MODULES": ["user_project_wrapper"],
+  "VERILOG_POWER_DEFINE": "USE_POWER_PINS",
+  "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
+
+  "MACROS": {
+    "Neuromorphic_X1_wb": {
+      "vh": ["dir::../../ip/Neuromorphic_X1_32x32/hdl/NEUROMORPHIC_X1_stub.v"],
+      "gds": ["dir::../../gds/Neuromorphic_X1_wb.gds"],
+      "lef": ["dir::../../lef/Neuromorphic_X1_wb.lef"],
+      "instances": {
+        "img_comp_inst.x1_core.synapse_matrix_inst.X1_inst": { "location": [150, 470], "orientation": "N" }
+      },
+      "lib": { "*": "dir::../../lib/Neuromorphic_X1_wb.lib" }
+    }
+  },
+
+  "PDN_MACRO_CONNECTIONS": [
+    "img_comp_inst.x1_core.synapse_matrix_inst.X1_inst vccd1 vssd1 VDDC1 VSS",
+    "img_comp_inst.x1_core.synapse_matrix_inst.X1_inst vccd2 vssd1 VDDC2 VSS",
+    "img_comp_inst.x1_core.synapse_matrix_inst.X1_inst vdda1 vssd1 VDDA1 VSS",
+    "img_comp_inst.x1_core.synapse_matrix_inst.X1_inst vdda2 vssd1 VDDA2 VSS"
+  ],
+
+  "FP_MACRO_HORIZONTAL_HALO": 40,
+  "FP_MACRO_VERTICAL_HALO": 40,
+
+  "FP_PDN_VPITCH": 180,
+  "FP_PDN_HPITCH": 180,
+  "FP_PDN_VOFFSET": 5,
+  "FP_PDN_HOFFSET": 5,
+  "FP_PDN_VWIDTH": 3.1,
+  "FP_PDN_HWIDTH": 3.1,
+  "FP_PDN_VSPACING": 15.5,
+  "FP_PDN_HSPACING": 15.5,
+
+  "FP_PDN_CORE_RING": true,
+  "FP_PDN_CORE_RING_VWIDTH": 3.1,
+  "FP_PDN_CORE_RING_HWIDTH": 3.1,
+  "FP_PDN_CORE_RING_VOFFSET": 12.45,
+  "FP_PDN_CORE_RING_HOFFSET": 12.45,
+  "FP_PDN_CORE_RING_VSPACING": 1.7,
+  "FP_PDN_CORE_RING_HSPACING": 1.7,
+
+  "MAGIC_DRC_USE_GDS": true,
+  "MAGIC_CAPTURE_ERRORS": false,
+  "ERROR_ON_MAGIC_DRC": false,
+  "DRT_THREADS": 1,
+  "MAX_TRANSITION_CONSTRAINT": 1.5,
+
+  "DESIGN_NAME": "user_project_wrapper",
+  "FP_SIZING": "absolute",
+  "DIE_AREA": [0, 0, 2920, 3520],
+  "FP_DEF_TEMPLATE": "dir::fixed_dont_change/user_project_wrapper.def",
+
+  "VDD_NETS": ["vccd1", "vdda1", "vccd2", "vdda2"],
+  "GND_NETS": ["vssd1", "vssa1", "vssd2", "vssa2"],
+
+  "CLOCK_PORT": "wb_clk_i",
+  "CLOCK_PERIOD": 25,
+  "SIGNOFF_SDC_FILE": "dir::signoff.sdc",
+  "MAGIC_DEF_LABELS": false,
+  "MAGIC_ZEROIZE_ORIGIN": false,
+
+  "meta": { "version": 2 }
+}

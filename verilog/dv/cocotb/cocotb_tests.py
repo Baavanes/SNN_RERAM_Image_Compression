@@ -1,0 +1,1 @@
+from user_proj_tests.image_compression_storage.image_compression_storage import image_compression_storage

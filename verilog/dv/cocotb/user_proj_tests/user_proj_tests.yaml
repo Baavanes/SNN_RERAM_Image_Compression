@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
+
+includes:
+    - image_compression_storage/image_compression_storage.yaml

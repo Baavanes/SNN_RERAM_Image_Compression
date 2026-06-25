@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+# Caravel user project includes
+-v $(USER_PROJECT_VERILOG)/rtl/Neuromorphic_X1_Beh.v
+-v $(USER_PROJECT_VERILOG)/rtl/nvm_core_decoder.v
+-v $(USER_PROJECT_VERILOG)/rtl/nvm_synapse_matrix.v
+-v $(USER_PROJECT_VERILOG)/rtl/nvm_neuron_block.v
+-v $(USER_PROJECT_VERILOG)/rtl/nvm_neuron_spike_out.v
+-v $(USER_PROJECT_VERILOG)/rtl/nvm_neuron_core_256x64.v
+-v $(USER_PROJECT_VERILOG)/rtl/image_compression_storage.v
+-v $(USER_PROJECT_VERILOG)/rtl/user_project_wrapper.v

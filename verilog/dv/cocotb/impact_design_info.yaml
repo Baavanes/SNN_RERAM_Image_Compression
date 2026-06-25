@@ -1,0 +1,9 @@
+CARAVEL_ROOT: /home/vboxuser/BMSemi_SNN_image_comp/caravel
+MCW_ROOT: /home/vboxuser/BMSemi_SNN_image_comp/mgmt_core_wrapper
+PDK: sky130A
+PDK_ROOT: /home/vboxuser/BMSemi_SNN_image_comp/dependencies/pdks
+USER_PROJECT_ROOT: /home/vboxuser/BMSemi_SNN_image_comp
+caravan: false
+clk: 25
+emailto:
+  - null

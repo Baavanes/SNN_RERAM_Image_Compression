@@ -1,0 +1,54 @@
+Run tag: image_compression_rtl_nowave_20260624_174122 
+docker.io/efabless/dv:cocotb
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:79   in set_program_name_in_venv        Did not detect Python virtual environment. Using system-wide Python interpreter
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:101  in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 12.0 (stable)
+     0.00ns INFO     cocotb                             Running tests with cocotb v1.9.2 from /usr/local/lib/python3.10/dist-packages/cocotb
+     0.00ns INFO     cocotb                             Seeding Python random module with 1782303165
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb.regression                  Found test caravel_cocotb.interfaces.common_functions.test_functions.report_test.<locals>.wrapper_func
+     0.00ns INFO     cocotb.regression                  running report_test.<locals>.wrapper_func (1/1)
+     0.00ns INFO     cocotb                              [caravel] start powering up
+/usr/local/lib/python3.10/dist-packages/caravel_cocotb/interfaces/common_functions/Timeout.py:19: DeprecationWarning: This method is now private.
+  cocotb.scheduler.add(self._timeout_check())
+/usr/local/lib/python3.10/dist-packages/caravel_cocotb/interfaces/common_functions/test_functions.py:63: DeprecationWarning: This method is now private.
+  cocotb.scheduler.add(max_num_error(num_error, caravelEnv.clk))
+   225.00ns INFO     cocotb                              [caravel] power up -> connect vdd
+   225.00ns INFO     cocotb                              [caravel] power up -> connect vcc
+   475.00ns INFO     cocotb                              [caravel] disable housekeeping SPI transmission
+   525.00ns INFO     cocotb                              [caravel] start resetting
+  1050.00ns INFO     cocotb                              [caravel] finish resetting
+  1325.00ns INFO     cocotb                             [TEST] Start image_compression_storage
+  1325.00ns INFO     cocotb                              [caravel] release housekeeping SPI transmission
+2262150.00ns INFO     cocotb                             [TEST] X1 image threshold-compress/store/readback flow passed
+2262150.00ns INFO     cocotb                             Test passed with (0)criticals (0)errors (0)warnings 
+2262150.00ns INFO     cocotb                             Cycles consumed = 90486 recommened timeout = 99535 cycles
+2262150.00ns INFO     cocotb.regression                  report_test.<locals>.wrapper_func passed
+2262150.00ns INFO     cocotb.regression                  *****************************************************************************************************************************************************
+                                                         ** TEST                                                                                         STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                         *****************************************************************************************************************************************************
+                                                         ** caravel_cocotb.interfaces.common_functions.test_functions.report_test.<locals>.wrapper_func   PASS     2262150.00         228.98       9879.26  **
+                                                         *****************************************************************************************************************************************************
+                                                         ** TESTS=1 PASS=1 FAIL=0 SKIP=0                                                                           2262150.00         229.38       9861.89  **
+                                                         *****************************************************************************************************************************************************
+                                                         
+Reading firmware.hex
+firmware.hex loaded into memory
+Memory 5 bytes = 0x6f 0x00 0x00 0x0b 0x13
+ ===WARNING=== sky130_fd_io__top_xres4v2 :  Width of Input pulse for PAD input (= 225.00 ns)  is found to be in the range:  50 ns - 600 ns. In this range, the delay and pulse suppression of the input pulse are PVT dependent. : caravel_top.uut.padframe.resetb_pad       225
+ ===WARNING=== sky130_fd_io__top_xres4v2 :  Width of Input pulse for PAD input (= 300.00 ns)  is found to be in the range:  50 ns - 600 ns. In this range, the delay and pulse suppression of the input pulse are PVT dependent. : caravel_top.uut.padframe.resetb_pad       525
+ ===WARNING=== sky130_fd_io__top_xres4v2 :  Width of Input pulse for PAD input (= 500.00 ns)  is found to be in the range:  50 ns - 600 ns. In this range, the delay and pulse suppression of the input pulse are PVT dependent. : caravel_top.uut.padframe.resetb_pad      1025
+check update for docker image efabless/dv:cocotb.
+Start running test: [94m RTL-image_compression_storage [0m
+[96mCompiling as sim.vvp not found[0m
+-v /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/verilog/dv/cocotb:/home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/verilog/dv/cocotb -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/caravel:/home/vboxuser/caravel_user_Neuromorphic_X1_32x32/caravel -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/mgmt_core_wrapper:/home/vboxuser/caravel_user_Neuromorphic_X1_32x32/mgmt_core_wrapper -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/dependencies/pdks:/home/vboxuser/caravel_user_Neuromorphic_X1_32x32/dependencies/pdks -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/venv-cocotb/lib/python3.10/site-packages/caravel_cocotb/:/usr/local/lib/python3.8/dist-packages/caravel_cocotb/ -v /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi:/home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi
+-v /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/verilog/dv/cocotb:/home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/verilog/dv/cocotb -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/caravel:/home/vboxuser/caravel_user_Neuromorphic_X1_32x32/caravel -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/mgmt_core_wrapper:/home/vboxuser/caravel_user_Neuromorphic_X1_32x32/mgmt_core_wrapper -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/dependencies/pdks:/home/vboxuser/caravel_user_Neuromorphic_X1_32x32/dependencies/pdks -v /home/vboxuser/caravel_user_Neuromorphic_X1_32x32/venv-cocotb/lib/python3.10/site-packages/caravel_cocotb/:/usr/local/lib/python3.8/dist-packages/caravel_cocotb/ -v /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi:/home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi
+[92mTest: RTL-image_compression_storage has passed[0m
+┏━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━┓
+┃ Total     ┃ Passed ┃ Failed    ┃ Unknown   ┃ duration   ┃        ┃           ┃
+┡━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━┩
+│ 1         │ 1      │ 0         │ 0         │ 0:05:12.41 │        │           │
+│           │        │           │           │            │        │           │
+│ Test      │ status │ start     │ end       │ duration   │ p/f    │ seed      │
+│ RTL-imag… │ done   │ 17:41:26… │ 17:46:38… │ 0:05:11.98 │ passed │ 17823031… │
+└───────────┴────────┴───────────┴───────────┴────────────┴────────┴───────────┘

@@ -1,0 +1,275 @@
+== RTL COCOTB ==
+2262150.00ns INFO     cocotb                             [TEST] X1 image threshold-compress/store/readback flow passed
+2262150.00ns INFO     cocotb                             Test passed with (0)criticals (0)errors (0)warnings 
+2262150.00ns INFO     cocotb                             Cycles consumed = 90486 recommened timeout = 99535 cycles
+                                                         ** TESTS=1 PASS=1 FAIL=0 SKIP=0                                                                           2262150.00         229.38       9861.89  **
+
+== FINAL VIEWS ==
+-rw-r--r-- 1 vboxuser vboxuser  66M Jun 24 21:36 /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/def/user_project_wrapper.def
+-rw-rw-r-- 1 vboxuser vboxuser  85M Jun 24 21:37 /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/gds/user_project_wrapper.gds
+-rw-rw-r-- 1 vboxuser vboxuser 178K Jun 24 21:36 /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/lef/user_project_wrapper.lef
+-rw-rw-r-- 1 vboxuser vboxuser 130K Jun 24 21:36 /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/lib/user_project_wrapper.lib
+-rw-rw-r-- 1 vboxuser vboxuser  21M Jun 24 21:36 /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/spef/user_project_wrapper.spef
+-rw-rw-r-- 1 vboxuser vboxuser  64M Jun 24 21:36 /home/vboxuser/IMPACT_SNN_RERAM_submit_BMsemi/verilog/gl/user_project_wrapper.v
+
+== METRICS ==
+design__lint_error__count,0
+design__lint_warning__count,497
+design__instance_unmapped__count,0
+design__max_slew_violation__count,35
+design__max_fanout_violation__count,391
+design__max_cap_violation__count,2
+timing__hold__tns,0.0
+timing__setup__tns,0.0
+timing__hold__wns,0
+timing__setup__wns,0.0
+design__violations,0
+antenna__violating__nets,2
+antenna__violating__pins,2
+route__antenna_violation__count,2
+route__drc_errors,0
+design__xor_difference__count,0
+magic__drc_error__count,0
+klayout__drc_error__count,0
+design__lvs_device_difference__count,0
+design__lvs_net_difference__count,0
+design__lvs_property_fail__count,0
+design__lvs_error__count,0
+design__lvs_unmatched_device__count,0
+design__lvs_unmatched_net__count,0
+design__lvs_unmatched_pin__count,0
+
+== CORNER VIOLATIONS ==
+design__max_slew_violation__count,35
+design__max_fanout_violation__count,391
+design__max_cap_violation__count,2
+timing__hold__tns,0.0
+timing__setup__tns,0.0
+timing__hold__wns,0
+timing__setup__wns,0.0
+
+== MAGIC DRC ==
+user_project_wrapper
+----------------------------------------
+[INFO] COUNT: 0
+[INFO] Should be divided by 3 or 4
+
+
+== KLAYOUT DRC COUNT ==
+klayout__drc_error__count,0
+
+== LVS ==
+Final result: Circuits match uniquely.
+
+== XOR ==
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+XOR differences: 0
+Total XOR differences: 0
+%OL_METRIC_I design__xor_difference__count 0
+
+== ANTENNA SUMMARY ==
+┏━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━┓
+┃ P / R ┃ Partial ┃ Required ┃ Net    ┃ Pin         ┃ Layer ┃
+┡━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━┩
+│ 1.49  │ 597.33  │ 400.00   │ net512 │ fanout511/A │ met1  │
+│ 1.11  │ 445.83  │ 400.00   │ net97  │ _3547_/B    │ met1  │
+└───────┴─────────┴──────────┴────────┴─────────────┴───────┘
+
+== ANTENNA DETAIL ==
+934:    Layer: met2
+935:      Partial area ratio:   13.65
+936:      Required ratio:    0.00 (Gate area) 
+938:      Required ratio:    0.00 (Cumulative area) 
+939:      Partial area ratio:   67.94
+940:      Required ratio: 3295.52 (Side area) 
+942:      Required ratio:    0.00 (Cumulative side area) 
+944:    Layer: via2
+945:      Partial area ratio:    0.02
+946:      Required ratio:   68.60 (Gate area) 
+948:      Required ratio:    0.00 (Cumulative area) 
+950:    Layer: met3
+951:      Partial area ratio:   21.97
+952:      Required ratio:    0.00 (Gate area) 
+954:      Required ratio:    0.00 (Cumulative area) 
+955:      Partial area ratio:  117.31
+956:      Required ratio: 4351.76 (Side area) 
+958:      Required ratio:    0.00 (Cumulative side area) 
+961:  Pin:   ANTENNA_fanout479_A/DIODE (sky130_fd_sc_hd__diode_2)
+962:    Layer: mcon
+963:      Partial area ratio:    0.07
+964:      Required ratio:   10.82 (Gate area) 
+966:      Required ratio:    0.00 (Cumulative area) 
+968:    Layer: met1
+969:      Partial area ratio:    1.13
+970:      Required ratio:    0.00 (Gate area) 
+972:      Required ratio:    0.00 (Cumulative area) 
+973:      Partial area ratio:    5.55
+974:      Required ratio: 2773.88 (Side area) 
+976:      Required ratio:    0.00 (Cumulative side area) 
+978:    Layer: via
+979:      Partial area ratio:    0.03
+980:      Required ratio:   21.65 (Gate area) 
+982:      Required ratio:    0.00 (Cumulative area) 
+984:    Layer: met2
+985:      Partial area ratio:    0.43
+986:      Required ratio:    0.00 (Gate area) 
+988:      Required ratio:    0.00 (Cumulative area) 
+989:      Partial area ratio:    1.91
+990:      Required ratio: 3482.36 (Side area) 
+992:      Required ratio:    0.00 (Cumulative side area) 
+994:    Layer: via2
+995:      Partial area ratio:    0.04
+996:      Required ratio:   85.41 (Gate area) 
+998:      Required ratio:    0.00 (Cumulative area) 
+1000:    Layer: met3
+1001:      Partial area ratio:   21.97
+1002:      Required ratio:    0.00 (Gate area) 
+1004:      Required ratio:    0.00 (Cumulative area) 
+1005:      Partial area ratio:  117.31
+1006:      Required ratio: 4351.76 (Side area) 
+1008:      Required ratio:    0.00 (Cumulative side area) 
+1011:  Pin:   ANTENNA_fanout504_A/DIODE (sky130_fd_sc_hd__diode_2)
+1012:    Layer: mcon
+1013:      Partial area ratio:    0.07
+1014:      Required ratio:   10.82 (Gate area) 
+1016:      Required ratio:    0.00 (Cumulative area) 
+1018:    Layer: met1
+1019:      Partial area ratio:    1.70
+1020:      Required ratio:    0.00 (Gate area) 
+1022:      Required ratio:    0.00 (Cumulative area) 
+1023:      Partial area ratio:    8.26
+1024:      Required ratio: 2773.88 (Side area) 
+1026:      Required ratio:    0.00 (Cumulative side area) 
+1028:    Layer: via
+1029:      Partial area ratio:    0.03
+1030:      Required ratio:   21.65 (Gate area) 
+1032:      Required ratio:    0.00 (Cumulative area) 
+1034:    Layer: met2
+1035:      Partial area ratio:   13.65
+1036:      Required ratio:    0.00 (Gate area) 
+1038:      Required ratio:    0.00 (Cumulative area) 
+1039:      Partial area ratio:   67.94
+1040:      Required ratio: 3295.52 (Side area) 
+1042:      Required ratio:    0.00 (Cumulative side area) 
+1044:    Layer: via2
+1045:      Partial area ratio:    0.02
+1046:      Required ratio:   68.60 (Gate area) 
+1048:      Required ratio:    0.00 (Cumulative area) 
+1050:    Layer: met3
+1051:      Partial area ratio:   21.97
+1052:      Required ratio:    0.00 (Gate area) 
+1054:      Required ratio:    0.00 (Cumulative area) 
+1055:      Partial area ratio:  117.31
+1056:      Required ratio: 4351.76 (Side area) 
+1058:      Required ratio:    0.00 (Cumulative side area) 
+1061:  Pin:   ANTENNA_fanout498_A/DIODE (sky130_fd_sc_hd__diode_2)
+1062:    Layer: mcon
+1063:      Partial area ratio:    0.07
+1064:      Required ratio:   10.82 (Gate area) 
+1066:      Required ratio:    0.00 (Cumulative area) 
+1068:    Layer: met1
+1069:      Partial area ratio:    0.46
+1070:      Required ratio:    0.00 (Gate area) 
+1072:      Required ratio:    0.00 (Cumulative area) 
+1073:      Partial area ratio:    2.15
+1074:      Required ratio: 2773.88 (Side area) 
+1076:      Required ratio:    0.00 (Cumulative side area) 
+1078:    Layer: via
+1079:      Partial area ratio:    0.04
+1080:      Required ratio:   21.65 (Gate area) 
+1082:      Required ratio:    0.00 (Cumulative area) 
+1084:    Layer: met2
+1085:      Partial area ratio:   13.65
+1086:      Required ratio:    0.00 (Gate area) 
+1088:      Required ratio:    0.00 (Cumulative area) 
+1089:      Partial area ratio:   67.94
+1090:      Required ratio: 3295.52 (Side area) 
+1092:      Required ratio:    0.00 (Cumulative side area) 
+1094:    Layer: via2
+1095:      Partial area ratio:    0.02
+1096:      Required ratio:   68.60 (Gate area) 
+1098:      Required ratio:    0.00 (Cumulative area) 
+1100:    Layer: met3
+1101:      Partial area ratio:   21.97
+1102:      Required ratio:    0.00 (Gate area) 
+1104:      Required ratio:    0.00 (Cumulative area) 
+1105:      Partial area ratio:  117.31
+1106:      Required ratio: 4351.76 (Side area) 
+1108:      Required ratio:    0.00 (Cumulative side area) 
+
+== FLOW LOG SUMMARY ==
+────────── Check Antenna Properties of Macros Pins in Their LEF Views ──────────
+[12:26:54] VERBOSE  Running 'Odb.CheckMacroAntennaProperties' at    step.py:1146
+                    by OpenROAD PSM- you may ignore these if LVS                
+[INFO RSZ-0098] No setup violations found                                       
+──────────────────────────────── Check Antennas ────────────────────────────────
+[12:33:44] VERBOSE  Running 'OpenROAD.CheckAntennas' at             step.py:1146
+Antenna cell                           4577   11453.48                          
+Antenna cell                           4577   11453.48                          
+──────────────────────────────── Antenna Repair ────────────────────────────────
+[12:35:37] VERBOSE  Running 'OpenROAD.RepairAntennas' at            step.py:1146
+Antenna cell                           4594   11496.03                          
+──────────────────────────────── Check Antennas ────────────────────────────────
+[12:37:56] VERBOSE  Running 'OpenROAD.CheckAntennas' at             step.py:1146
+Antenna cell                           4594   11496.03                          
+──────────────────────────────── Check Antennas ────────────────────────────────
+[12:49:49] VERBOSE  Running 'OpenROAD.CheckAntennas-1' at           step.py:1146
+[12:50:00] VERBOSE  Running 'Checker.TrDRC' at                      step.py:1146
+[12:50:00] INFO     Check for Routing DRC errors clear.           checker.py:132
+Antenna cell                           4594   11496.03                          
+────── Check Antenna Properties of Pins in The Generated Design LEF view ───────
+[13:07:37] VERBOSE  Running 'Odb.CheckDesignAntennaProperties' at   step.py:1146
+[13:10:22] VERBOSE  Running 'Magic.DRC' at                          step.py:1146
+DRC style is now "drc(full)"                                                    
+Loading DRC CIF style.                                                          
+[INFO] DRC Checking DONE                                                        
+[INFO] Saving mag view with DRC errors                                          
+[14:29:34] VERBOSE  Running 'KLayout.DRC' at                        step.py:1146
+[14:29:34] INFO     Running KLayout DRC with 8 threads…           klayout.py:375
+DRC::DRCEngine::FEOL                                                            
+DRC::DRCEngine::BEOL                                                            
+DRC::DRCEngine::OFFGRID                                                         
+DRC::DRCEngine::SEAL                                                            
+DRC::DRCEngine::FLOATING_MET                                                    
+DRC::DRCEngine::SRAM_EXCLUDE                                                    
+DRC section                                                                     
+[15:47:28] VERBOSE  Running 'Checker.MagicDRC' at                   step.py:1146
+[15:47:28] INFO     Check for Magic DRC errors clear.             checker.py:132
+[15:47:28] VERBOSE  Running 'Checker.KLayoutDRC' at                 step.py:1146
+[15:47:28] INFO     Check for KLayout DRC errors clear.           checker.py:132
+────────────────────────────────── Netgen LVS ──────────────────────────────────
+[16:01:48] VERBOSE  Running 'Netgen.LVS' at                         step.py:1146
+LVS Done.                                                                       
+[16:06:46] VERBOSE  Running 'Checker.LVS' at                        step.py:1146
+[16:06:46] INFO     Check for LVS errors clear.                   checker.py:132
+[16:06:46] VERBOSE  No setup violations found                     checker.py:583
+[16:06:46] VERBOSE  No hold violations found                      checker.py:583
+[16:06:46] WARNING  Max Slew violations found in the following    checker.py:581
+[16:06:46] VERBOSE  No max slew violations found                  checker.py:583
+[16:06:46] WARNING  Max Cap violations found in the following     checker.py:581
+[16:06:46] VERBOSE  No max cap violations found                   checker.py:583
+───────────────── Report Manufacturability (DRC, LVS, Antenna) ─────────────────
+* Antenna
+Check the report directory of OpenROAD.CheckAntennas.
+* LVS
+* DRC
+[16:06:51] INFO     Flow complete.                             sequential.py:366
+[16:06:51] WARNING  [Odb.CheckMacroAntennaProperties] Cell           flow.py:703
+[16:06:51] WARNING  [Checker.MaxSlewViolations] Max Slew violations  flow.py:703
+[16:06:51] WARNING  [Checker.MaxCapViolations] Max Cap violations    flow.py:703
