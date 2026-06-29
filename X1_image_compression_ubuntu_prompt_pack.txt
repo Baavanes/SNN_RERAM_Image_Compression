@@ -1,0 +1,1304 @@
+BMsemi X1 Image Compression Demo - Fresh Ubuntu Prompt Pack
+===========================================================
+
+Purpose
+-------
+
+This text file is a copy/paste prompt pack for Codex on a fresh Ubuntu
+22.04/24.04 machine. Use the prompts in order.
+
+Goal:
+
+1. Install all tools needed for Caravel cocotb and OpenLane/LibreLane.
+2. Clone the BMsemi reference repository.
+3. Create a separate demo package named BMSemi_SNN_image_comp.
+4. Implement a simple image-compression and X1-storage RTL demo.
+5. Verify it using Caravel cocotb.
+6. Generate waveforms.
+7. Run OpenLane/LibreLane hardening for user_project_wrapper.
+8. Collect final GDS and signoff reports.
+
+Reference repo:
+
+  https://github.com/BMsemi/IMPACT_SNN_RERAM_submit
+
+Expected image demo behavior:
+
+  pixel[3] = 200, threshold = 128 -> compressed bit 3 = 1 -> X1[1][3] = 1
+  pixel[8] = 64,  threshold = 128 -> compressed bit 8 = 0 -> X1[1][8] = 0
+
+Expected compressed mask:
+
+  0x0008
+
+Expected cocotb result:
+
+  TESTS=1 PASS=1 FAIL=0 SKIP=0
+
+
+Prompt 1 - Prepare Fresh Ubuntu
+-------------------------------
+
+Copy/paste this prompt into Codex on the fresh Ubuntu machine:
+
+BEGIN PROMPT
+
+I am on a fresh Ubuntu 22.04 or 24.04 machine. Prepare it for a Caravel/X1
+image-compression demo using cocotb and OpenLane/LibreLane.
+
+Do the following carefully:
+
+1. Detect OS version and current user.
+2. Install base development packages:
+
+   sudo apt update
+   sudo apt install -y \
+     git make cmake ninja-build build-essential gcc g++ clang \
+     python3 python3-pip python3-venv python3-dev \
+     curl wget unzip zip tar gzip xz-utils ca-certificates gnupg lsb-release \
+     software-properties-common pkg-config \
+     autoconf automake autotools-dev libtool gettext \
+     bison flex gperf \
+     tcl tcl-dev tk tk-dev \
+     libreadline-dev libffi-dev libssl-dev zlib1g-dev \
+     libbz2-dev libsqlite3-dev libncurses-dev \
+     libx11-dev libxrender-dev libxft-dev libxpm-dev \
+     libjpeg-dev libpng-dev \
+     iverilog verilator gtkwave \
+     magic netgen klayout yosys \
+     openjdk-17-jre-headless \
+     openssh-server
+
+3. Install Docker using the official Docker apt repository:
+
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+     sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   sudo chmod a+r /etc/apt/keyrings/docker.gpg
+   . /etc/os-release
+   echo \
+     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu ${VERSION_CODENAME} stable" | \
+     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   sudo apt update
+   sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   sudo systemctl enable --now docker
+   sudo usermod -aG docker "$USER"
+
+4. Install optional remote access:
+
+   sudo systemctl enable --now ssh
+
+   If Tailscale is desired:
+     curl -fsSL https://tailscale.com/install.sh | sh
+     sudo tailscale up
+
+5. Verify tools:
+
+   git --version
+   make --version
+   python3 --version
+   docker --version
+   iverilog -V
+   verilator --version
+   gtkwave --version || true
+   magic -version || true
+   netgen -batch source /dev/null || true
+   klayout -v || true
+   yosys -V || true
+
+6. Tell me clearly if I must log out or reboot.
+
+Important:
+
+- After adding the user to the docker group, tell me to log out and log back in,
+  or reboot, before running Docker without sudo.
+- Do not continue to Caravel setup until Docker works with:
+
+  docker run --rm hello-world
+
+If any command fails, stop and summarize the exact failure and fix.
+
+END PROMPT
+
+
+Prompt 2 - Clone Reference Repo And Install Caravel/Cocotb/OpenLane
+-------------------------------------------------------------------
+
+Use this after Docker works without sudo.
+
+BEGIN PROMPT
+
+Set up the BMsemi reference repository and install the Caravel/cocotb/OpenLane
+environment.
+
+Use this reference repository:
+
+  https://github.com/BMsemi/IMPACT_SNN_RERAM_submit
+
+Do the following:
+
+1. Create a working directory:
+
+   mkdir -p ~/bmsemi_x1_demo
+   cd ~/bmsemi_x1_demo
+
+2. Clone the repo:
+
+   git clone https://github.com/BMsemi/IMPACT_SNN_RERAM_submit.git IMPACT_SNN_RERAM_submit_BMsemi
+   cd IMPACT_SNN_RERAM_submit_BMsemi
+
+   If the repo is private or clone fails, stop and tell me whether I need GitHub
+   login, a token, or SSH access.
+
+3. Inspect the repo:
+
+   pwd
+   find . -maxdepth 3 -type f \( -name Makefile -o -name config.json -o -name "*.v" -o -name "*.yaml" \) | sort | head -200
+
+4. Install or initialize Caravel, management core, PDK, LibreLane/OpenLane, timing scripts, precheck, and caravel-cocotb.
+
+   Try repo-supported setup first:
+
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make setup
+
+   If full setup is too broad or fails, run the smaller targets if present:
+
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make install
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make openlane
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make pdk-with-ciel
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make setup-timing-scripts
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make setup-cocotb
+     DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make precheck
+
+5. Use sky130A unless the repo explicitly says otherwise.
+
+6. Verify these exist after setup:
+
+   caravel/
+   mgmt_core_wrapper/
+   dependencies/pdks/sky130A/
+   venv-cocotb/bin/caravel_cocotb
+   openlane/ or dependencies/openlane_src/
+
+7. Verify the cocotb runner:
+
+   ./venv-cocotb/bin/caravel_cocotb --help | head -80
+
+8. Summarize:
+
+   - repo path
+   - Caravel path
+   - MCW path
+   - PDK_ROOT
+   - PDK
+   - cocotb runner path
+   - OpenLane/LibreLane path
+   - any setup failures and fixes
+
+Stop on failures. Do not hide missing dependencies.
+
+END PROMPT
+
+
+Prompt 3 - Create Separate Image Compression Demo Package
+---------------------------------------------------------
+
+BEGIN PROMPT
+
+Create a separate clean package for the X1 image-compression demo. Do not modify
+the original reference folder as the final deliverable.
+
+Source reference folder:
+
+  ~/bmsemi_x1_demo/IMPACT_SNN_RERAM_submit_BMsemi
+
+New package folder:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Tasks:
+
+1. Copy the reference repo into the new package folder:
+
+   cd ~/bmsemi_x1_demo
+   rm -rf BMSemi_SNN_image_comp
+   cp -a IMPACT_SNN_RERAM_submit_BMsemi BMSemi_SNN_image_comp
+   cd BMSemi_SNN_image_comp
+
+2. Keep the repo format the same:
+
+   - keep root Makefile
+   - keep openlane/ folder and Makefiles
+   - keep verilog/ folder structure
+   - keep verilog/rtl/
+   - keep verilog/dv/cocotb/
+   - keep verilog/includes/
+   - keep gds/, lef/, lib/ macro views if present
+   - keep caravel/, mgmt_core_wrapper/, dependencies/ if already installed
+
+3. Remove old demo/adaptive/protocol RTL from the active build:
+
+   Remove active references to:
+
+   - adaptive_fabric_top_tapeout
+   - adaptive_fabric_top
+   - serial_fabric_top
+   - i2c_detector
+   - spi_detector
+   - uart_detector
+   - protocol_detector
+   - protocol_fsm
+   - mode_control_fsm
+   - mode_decoder
+   - shared_datapath
+   - sync_edge
+   - user_proj_example
+
+   Do not delete Caravel, PDK, OpenLane, X1 macro views, or Makefiles.
+
+4. Keep or copy the X1 support files needed by the demo:
+
+   verilog/rtl/Neuromorphic_X1_Beh.v
+   verilog/rtl/nvm_core_decoder.v
+   verilog/rtl/nvm_neuron_block.v
+   verilog/rtl/nvm_neuron_core_256x64.v
+   verilog/rtl/nvm_neuron_spike_out.v
+   verilog/rtl/nvm_synapse_matrix.v
+
+   Macro views if present:
+
+   gds/Neuromorphic_X1_wb.gds
+   lef/Neuromorphic_X1_wb.lef
+   lib/Neuromorphic_X1_wb.lib
+
+5. Create a MANIFEST.txt:
+
+   find . -path './dependencies' -prune -o -path './caravel' -prune -o -path './mgmt_core_wrapper' -prune -o -type f -print | sort > MANIFEST.txt
+
+6. Create PACKAGE_SIZE.txt:
+
+   du -sh . > PACKAGE_SIZE.txt
+
+7. Summarize what was removed and what was kept.
+
+END PROMPT
+
+
+Prompt 4 - Implement Image Compression RTL
+------------------------------------------
+
+BEGIN PROMPT
+
+Implement the simple image-compression and X1-storage RTL demo in:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Create or replace:
+
+  verilog/rtl/image_compression_storage.v
+  verilog/rtl/user_project_wrapper.v
+
+Functional requirement:
+
+The design receives image commands from Caravel Wishbone, stores raw pixel
+values in a tiny 16-pixel local buffer, threshold-compresses the block into a
+16-bit mask, programs bright-pixel bits into the X1 IP, and later reads bits
+back from X1.
+
+Address map:
+
+  0x3000_0000, word offset 0: status register
+  0x3000_0004, word offset 1: command register on write, last command on read
+  0x3000_0008, word offset 2: result register
+  0x3000_000C, word offset 3: compressed mask debug register
+
+Host command format:
+
+  [31:28] opcode
+  [27:24] image block number
+  [23:16] pixel value
+  [15:8]  threshold
+  [7:4]   reserved
+  [3:0]   pixel index inside 16-pixel block
+
+Supported host opcodes:
+
+  0x2 = LOAD_PIXEL
+  0x3 = COMPRESS_BLOCK
+  0x4 = READ_BIT
+  0x5 = CLEAR_BLOCK
+  0x6 = READ_MASK
+
+Internal storage:
+
+  reg [7:0]  pixel_buf [0:15]
+  reg [15:0] valid_mask_r
+  reg [15:0] compressed_mask_r
+  reg [15:0] mask_read_r
+  reg [7:0]  count_r
+  reg [31:0] result_r
+  reg        done_r
+  reg        configured_r
+  reg        error_r
+  reg        compressed_ready_r
+
+Status register format:
+
+  [31:24] = 0x49
+  [21:17] = state
+  [16]    = compressed_ready
+  [15]    = configured
+  [14]    = error
+  [13]    = done
+  [12]    = busy
+  [11:4]  = count
+  [3:0]   = current block
+
+State machine:
+
+  ST_CFG_WRITE       : send three X1 config words after reset
+  ST_IDLE            : wait for firmware command
+  ST_COMPRESS_NEXT   : scan pixel indexes 0..15
+  ST_COMPRESS_WRITE  : wait for X1 program ACK
+  ST_READ_CMD        : issue X1 read command
+  ST_READ_POP        : pop X1 read result
+  ST_CLEAR_NEXT      : clear next X1 bit in block
+  ST_CLEAR_WRITE     : wait for X1 reset ACK
+  ST_MASK_NEXT       : read next X1 bit for full mask
+  ST_MASK_CMD        : wait for X1 read-command ACK
+  ST_MASK_POP        : collect X1 read result
+  ST_DONE            : set done flag and return to idle
+
+X1 address:
+
+  32'h3000_0004
+
+X1 config words sent after reset:
+
+  32'hA203_C40F
+  32'h0F03_0D43
+  32'h4200_0C03
+
+X1 command helpers:
+
+  Program/set selected X1 cell:
+
+    32'hC000_00FF | (row << 25) | (col << 20)
+
+  Reset selected X1 cell:
+
+    (row << 25) | (col << 20)
+
+  Read selected X1 cell:
+
+    32'h4000_0000 | (row << 25) | (col << 20)
+
+Compression behavior:
+
+  For index 0..15:
+
+    if valid_mask_r[index] == 1 and pixel_buf[index] >= threshold:
+        compressed_mask_r[index] = 1
+        count_r++
+        program X1[row=block][col=index] = 1
+    else:
+        compressed_mask_r[index] = 0
+
+READ_BIT behavior:
+
+  Read X1[row=block][col=index].
+  Return the bit in result_r[0].
+
+READ_MASK behavior:
+
+  Read X1[row=block][col=0..15].
+  Rebuild a 16-bit mask.
+  Return {valid flag, block, count, mask}.
+
+CLEAR_BLOCK behavior:
+
+  Reset X1[row=block][col=0..15] to 0.
+  Clear valid_mask_r and compressed_mask_r.
+
+Error behavior:
+
+  If a command is written while busy or before configured:
+    result_r = 32'h8000_00EF
+    error_r = 1
+    done_r = 1
+
+  If opcode is unknown:
+    result_r = 32'h8000_00EE
+    error_r = 1
+    done_r = 1
+
+Wrapper requirement:
+
+  user_project_wrapper must instantiate only:
+
+    image_compression_storage img_comp_inst
+
+  Do not instantiate adaptive_fabric_top_tapeout or old protocol demo logic.
+
+  Connect:
+
+    la_data_out = {96'd0, img_debug_status}
+    user_irq = img_event_irq
+
+  Keep basic scan and analog X1 pins connected to io_in/io_out/analog_io in the
+  same style as the reference repo.
+
+After editing, run syntax checks:
+
+  cd ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+  iverilog -g2012 -I verilog/rtl \
+    -o /tmp/image_comp_syntax.vvp \
+    verilog/rtl/defines.v \
+    verilog/rtl/Neuromorphic_X1_Beh.v \
+    verilog/rtl/nvm_core_decoder.v \
+    verilog/rtl/nvm_neuron_block.v \
+    verilog/rtl/nvm_neuron_spike_out.v \
+    verilog/rtl/nvm_synapse_matrix.v \
+    verilog/rtl/nvm_neuron_core_256x64.v \
+    verilog/rtl/image_compression_storage.v \
+    verilog/rtl/user_project_wrapper.v
+
+Fix all syntax errors before continuing.
+
+END PROMPT
+
+
+Prompt 5 - Wire OpenLane Config And RTL Includes
+------------------------------------------------
+
+BEGIN PROMPT
+
+Update the active file lists for the image-compression package:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Tasks:
+
+1. Update:
+
+   verilog/includes/includes.rtl.caravel_user_project
+
+   It should include only the active RTL needed for this image-compression demo:
+
+   - Neuromorphic_X1_Beh.v
+   - nvm_core_decoder.v
+   - nvm_neuron_block.v
+   - nvm_neuron_core_256x64.v
+   - nvm_neuron_spike_out.v
+   - nvm_synapse_matrix.v
+   - image_compression_storage.v
+   - user_project_wrapper.v
+
+2. Update:
+
+   openlane/user_project_wrapper/config.json
+
+   The VERILOG_FILES list must contain only the active design files:
+
+   - dir::../../verilog/rtl/defines.v
+   - dir::../../verilog/rtl/user_project_wrapper.v
+   - dir::../../verilog/rtl/image_compression_storage.v
+   - dir::../../verilog/rtl/nvm_core_decoder.v
+   - dir::../../verilog/rtl/nvm_neuron_block.v
+   - dir::../../verilog/rtl/nvm_neuron_core_256x64.v
+   - dir::../../verilog/rtl/nvm_neuron_spike_out.v
+   - dir::../../verilog/rtl/nvm_synapse_matrix.v
+
+3. Make sure the X1 macro is still configured, using the instance path:
+
+   img_comp_inst.x1_core.synapse_matrix_inst.X1_inst
+
+4. Remove stale OpenLane references to:
+
+   adaptive_fabric_top_tapeout
+   adaptive_fabric_top
+   serial_fabric_top
+   protocol_fsm
+   protocol_detector
+   i2c_detector
+   spi_detector
+   uart_detector
+   user_proj_example
+
+5. Validate JSON:
+
+   python3 -m json.tool openlane/user_project_wrapper/config.json > /tmp/config.checked.json
+
+6. Search for stale references:
+
+   grep -R "adaptive_fabric_top_tapeout\|adaptive_fabric_top\|serial_fabric_top\|protocol_fsm\|protocol_detector\|i2c_detector\|spi_detector\|uart_detector\|user_proj_example" \
+     verilog openlane || true
+
+7. Summarize all changed files.
+
+END PROMPT
+
+
+Prompt 6 - Create Firmware And Cocotb Test
+------------------------------------------
+
+BEGIN PROMPT
+
+Create the Caravel cocotb test for the image-compression X1 storage demo.
+
+Package root:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Create/update these files:
+
+  verilog/dv/cocotb/user_proj_tests/image_compression_storage/image_compression_storage.c
+  verilog/dv/cocotb/user_proj_tests/image_compression_storage/image_compression_storage.py
+  verilog/dv/cocotb/user_proj_tests/image_compression_storage/image_compression_storage.yaml
+  verilog/dv/cocotb/user_proj_tests/user_proj_tests.yaml
+  verilog/dv/cocotb/cocotb_tests.py
+
+Firmware behavior:
+
+1. Include:
+
+   #include <firmware_apis.h>
+
+2. Use word offsets:
+
+   IMG_STATUS_OFFSET_WORD = 0
+   IMG_CMD_OFFSET_WORD    = 1
+   IMG_RESULT_OFFSET_WORD = 2
+
+3. Status bits:
+
+   IMG_STATUS_READY      = 1 << 16
+   IMG_STATUS_CONFIGURED = 1 << 15
+   IMG_STATUS_ERROR      = 1 << 14
+   IMG_STATUS_DONE       = 1 << 13
+   IMG_STATUS_BUSY       = 1 << 12
+
+4. Opcodes:
+
+   LOAD_PIXEL     = 0x2
+   COMPRESS_BLOCK = 0x3
+   READ_BIT       = 0x4
+   CLEAR_BLOCK    = 0x5
+   READ_MASK      = 0x6
+
+5. Implement pack_img_cmd():
+
+   return ((op & 0xF) << 28) |
+          ((block & 0xF) << 24) |
+          ((pixel & 0xFF) << 16) |
+          ((threshold & 0xFF) << 8) |
+          (index & 0xF);
+
+6. Test values:
+
+   block        = 1
+   threshold    = 128
+   bright_index = 3
+   dark_index   = 8
+   bright_pixel = 200
+   dark_pixel   = 64
+
+7. Exact host commands expected:
+
+   LOAD_PIXEL bright:
+     pack_img_cmd(0x2, 1, 200, 0, 3) = 0x21C80003
+
+   LOAD_PIXEL dark:
+     pack_img_cmd(0x2, 1, 64, 0, 8) = 0x21400008
+
+   COMPRESS_BLOCK:
+     pack_img_cmd(0x3, 1, 0, 128, 0) = 0x31008000
+
+   READ_BIT bright:
+     pack_img_cmd(0x4, 1, 0, 0, 3) = 0x41000003
+
+   READ_BIT dark:
+     pack_img_cmd(0x4, 1, 0, 0, 8) = 0x41000008
+
+8. Expected internal X1 commands:
+
+   Program bright pixel X1[1][3]:
+     0xC23000FF
+
+   Read bright pixel X1[1][3]:
+     0x42300000
+
+   Read dark pixel X1[1][8]:
+     0x42800000
+
+9. Firmware sequence:
+
+   ManagmentGpio_outputEnable()
+   ManagmentGpio_write(0)
+   enableHkSpi(0)
+   User_enableIF()
+   wait for configured and not busy
+   load bright pixel
+   load dark pixel
+   compress block
+   read result
+   verify low 16 bits == 0x0008
+   verify count == 1
+   read bright bit and verify 1
+   read dark bit and verify 0
+   ManagmentGpio_write(1) if pass, otherwise 0
+   while (1)
+
+Python cocotb test behavior:
+
+  from caravel_cocotb.caravel_interfaces import report_test
+  from caravel_cocotb.caravel_interfaces import test_configure
+  import cocotb
+
+  @cocotb.test()
+  @report_test
+  async def image_compression_storage(dut):
+      caravelEnv = await test_configure(dut, timeout_cycles=1200000)
+      cocotb.log.info("[TEST] Start image_compression_storage")
+      await caravelEnv.release_csb()
+      await caravelEnv.wait_mgmt_gpio(1)
+      cocotb.log.info("[TEST] X1 image threshold-compress/store/readback flow passed")
+
+YAML:
+
+  Tests:
+      - {name: image_compression_storage, sim: RTL}
+
+cocotb_tests.py:
+
+  Import only this test:
+
+    from user_proj_tests.image_compression_storage.image_compression_storage import image_compression_storage
+
+Makefile target issue:
+
+  Check the root Makefile cocotb target generator. If it has:
+
+    sed -e 's|^.*/||' -e 's/.c//'
+
+  fix it to:
+
+    sed -e 's|^.*/||' -e 's|\.c$$||'
+
+  This prevents image_compression_storage.c from being converted into the
+  wrong target name.
+
+Design info:
+
+  Ensure this file exists:
+
+    verilog/dv/cocotb/design_info.yaml
+
+  It should point to this package:
+
+    CARAVEL_ROOT: /home/$USER/bmsemi_x1_demo/BMSemi_SNN_image_comp/caravel
+    MCW_ROOT: /home/$USER/bmsemi_x1_demo/BMSemi_SNN_image_comp/mgmt_core_wrapper
+    PDK: sky130A
+    PDK_ROOT: /home/$USER/bmsemi_x1_demo/BMSemi_SNN_image_comp/dependencies/pdks
+    USER_PROJECT_ROOT: /home/$USER/bmsemi_x1_demo/BMSemi_SNN_image_comp
+    caravan: false
+    clk: 25
+    emailto:
+      - null
+
+  Use the actual expanded absolute path, not a literal $USER, if the cocotb
+  runner requires absolute YAML paths.
+
+END PROMPT
+
+
+Prompt 7 - Run RTL Cocotb And Generate Waveforms
+------------------------------------------------
+
+BEGIN PROMPT
+
+Run the standard Makefile cocotb RTL verification for the image-compression
+test and collect waveforms.
+
+Package root:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Commands:
+
+  cd ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+  DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make cocotb-verify-image_compression_storage-rtl
+
+Important:
+
+- Do not pass -no_wave. Waveforms should be generated by default.
+- If running through a non-interactive VM control shell and Docker complains:
+
+    the input device is not a TTY
+
+  run the Make command inside a pseudo-terminal:
+
+    script -q -e -c "DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make cocotb-verify-image_compression_storage-rtl" cocotb_image_run.log
+
+Expected pass lines:
+
+  [TEST] X1 image threshold-compress/store/readback flow passed
+  Test passed with (0)criticals (0)errors (0)warnings
+  TESTS=1 PASS=1 FAIL=0 SKIP=0
+
+Expected cycle count from the known passing run:
+
+  Cycles consumed = 90486
+
+Find result directory:
+
+  find verilog/dv/cocotb/sim -maxdepth 2 -type d -name "run_*" | sort | tail -5
+
+Find logs:
+
+  find verilog/dv/cocotb/sim -name "runs.log" -o -name "test.log" -o -name "firmware.log"
+
+Find waveform:
+
+  find verilog/dv/cocotb/sim -name "*.vcd" -o -name "*.fst"
+
+Open waveform:
+
+  gtkwave path/to/waves.vcd
+
+Useful waveform signals:
+
+  wbs_cyc_i
+  wbs_stb_i
+  wbs_we_i
+  wbs_adr_i
+  wbs_dat_i
+  wbs_dat_o
+  wbs_ack_o
+
+  img_comp_inst.state
+  img_comp_inst.cmd_op
+  img_comp_inst.cmd_block
+  img_comp_inst.cmd_pixel
+  img_comp_inst.cmd_threshold
+  img_comp_inst.cmd_index
+  img_comp_inst.valid_mask_r
+  img_comp_inst.compressed_mask_r
+  img_comp_inst.count_r
+  img_comp_inst.result_r
+  img_comp_inst.done_r
+  img_comp_inst.error_r
+  img_comp_inst.configured_r
+
+  img_comp_inst.x1_cyc_r
+  img_comp_inst.x1_stb_r
+  img_comp_inst.x1_we_r
+  img_comp_inst.x1_dat_i_r
+  img_comp_inst.x1_dat_o
+  img_comp_inst.x1_ack
+
+Important command values to see:
+
+  0x21C80003 on wbs_dat_i -> load bright pixel
+  0x21400008 on wbs_dat_i -> load dark pixel
+  0x31008000 on wbs_dat_i -> compress block
+  0xC23000FF on x1_dat_i  -> program X1 row 1 col 3
+  0x41000003 on wbs_dat_i -> read bright bit
+  0x42300000 on x1_dat_i  -> X1 read row 1 col 3
+  0x41000008 on wbs_dat_i -> read dark bit
+  0x42800000 on x1_dat_i  -> X1 read row 1 col 8
+
+After the run, summarize:
+
+  - command used
+  - run tag
+  - result directory
+  - TESTS/PASS/FAIL/SKIP
+  - waveform path and size
+  - important warnings
+  - exactly what behavior was proven
+
+END PROMPT
+
+
+Prompt 8 - Create Detailed Testbench README
+-------------------------------------------
+
+BEGIN PROMPT
+
+Create a detailed README for the image_compression_storage cocotb testbench.
+
+Package root:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Create:
+
+  verilog/dv/cocotb/user_proj_tests/image_compression_storage/README.md
+  docs/image_compression_storage_TESTBENCH_README.md
+
+The README must explain:
+
+1. Purpose of the testbench.
+2. File list:
+
+   verilog/rtl/user_project_wrapper.v
+   verilog/rtl/image_compression_storage.v
+   verilog/rtl/Neuromorphic_X1_Beh.v
+   verilog/dv/cocotb/cocotb_tests.py
+   verilog/dv/cocotb/user_proj_tests/user_proj_tests.yaml
+   verilog/dv/cocotb/user_proj_tests/image_compression_storage/image_compression_storage.c
+   verilog/dv/cocotb/user_proj_tests/image_compression_storage/image_compression_storage.py
+   verilog/dv/cocotb/user_proj_tests/image_compression_storage/image_compression_storage.yaml
+
+3. Address map:
+
+   0x3000_0000 -> status
+   0x3000_0004 -> command / last command
+   0x3000_0008 -> result
+   0x3000_000C -> compressed mask debug
+
+4. Command format:
+
+   [31:28] opcode
+   [27:24] block
+   [23:16] pixel
+   [15:8] threshold
+   [7:4] reserved
+   [3:0] index
+
+5. Driven values:
+
+   block        = 1
+   threshold    = 128
+   bright_index = 3
+   dark_index   = 8
+   bright_pixel = 200
+   dark_pixel   = 64
+   expected_mask = 0x0008
+
+6. Exact commands:
+
+   0x21C80003 -> load bright pixel
+   0x21400008 -> load dark pixel
+   0x31008000 -> compress block
+   0x41000003 -> read bright bit
+   0x41000008 -> read dark bit
+
+7. Expected internal X1 commands:
+
+   0xC23000FF -> program X1[1][3]
+   0x42300000 -> read X1[1][3]
+   0x42800000 -> read X1[1][8]
+
+8. What the firmware checks:
+
+   result mask == 0x0008
+   result count == 1
+   read bright bit == 1
+   read dark bit == 0
+
+9. How cocotb works:
+
+   test_configure()
+   release_csb()
+   wait_mgmt_gpio(1)
+
+10. How to run:
+
+    DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make cocotb-verify-image_compression_storage-rtl
+
+11. Waveform path and useful signals.
+
+Keep the README clear enough for a beginner to understand the full testbench.
+
+END PROMPT
+
+
+Prompt 9 - Run OpenLane/LibreLane Hardening
+-------------------------------------------
+
+BEGIN PROMPT
+
+Run OpenLane/LibreLane hardening for the image-compression user_project_wrapper
+and collect final layout output.
+
+Package root:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Pre-checks:
+
+  cd ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+  python3 -m json.tool openlane/user_project_wrapper/config.json > /tmp/config.checked.json
+  grep -R "adaptive_fabric_top_tapeout\|adaptive_fabric_top\|serial_fabric_top\|protocol_fsm\|protocol_detector\|i2c_detector\|spi_detector\|uart_detector\|user_proj_example" verilog openlane || true
+  test -f lef/Neuromorphic_X1_wb.lef && echo "X1 LEF ok"
+  test -f gds/Neuromorphic_X1_wb.gds && echo "X1 GDS ok"
+  test -f lib/Neuromorphic_X1_wb.lib && echo "X1 LIB ok"
+
+Run hardening:
+
+  DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make user_project_wrapper
+
+If the repo uses an OpenLane subdirectory target, try:
+
+  cd openlane
+  make user_project_wrapper
+
+or use the repo's documented LibreLane/OpenLane command. Do not invent a
+different flow if the repo has a working Makefile target.
+
+After hardening, find outputs:
+
+  find . -path "*user_project_wrapper*" -name "*.gds" -print
+  find . -path "*user_project_wrapper*" -name "*.def" -print
+  find . -path "*user_project_wrapper*" -name "*.lef" -print
+  find . -path "*user_project_wrapper*" -name "*.v" -print
+  find . -path "*user_project_wrapper*" -name "*.spef" -print
+  find . -path "*user_project_wrapper*" -name "*.lib" -print
+
+Create a final output folder:
+
+  mkdir -p results/final_views
+
+Copy final GDS/DEF/LEF/netlist/LIB/SPEF/report files into results/final_views
+without deleting original OpenLane outputs.
+
+Summarize:
+
+  - OpenLane command used
+  - run tag
+  - run directory
+  - final GDS path
+  - final DEF path
+  - final LEF path
+  - final netlist path
+  - final LIB path
+  - final SPEF path
+
+END PROMPT
+
+
+Prompt 10 - Signoff Report Collection
+-------------------------------------
+
+BEGIN PROMPT
+
+Collect and summarize signoff/manufacturability reports for:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Inspect these paths if they exist:
+
+  signoff/user_project_wrapper/openlane-signoff/drc.rpt
+  signoff/user_project_wrapper/openlane-signoff/29-user_project_wrapper.lvs.rpt
+  signoff/user_project_wrapper/openlane-signoff/antenna_summary.rpt
+  signoff/user_project_wrapper/openlane-signoff/25-xor.rpt
+  signoff/user_project_wrapper/openlane-signoff/timing-reports/summary.rpt
+  signoff/user_project_wrapper/metrics.csv
+
+Also search in OpenLane run directories:
+
+  find openlane/user_project_wrapper -type f \( \
+    -name "*drc*.rpt" -o \
+    -name "*lvs*.rpt" -o \
+    -name "*antenna*.rpt" -o \
+    -name "*xor*.rpt" -o \
+    -name "summary.rpt" -o \
+    -name "metrics.csv" \
+  \) -print
+
+Report table must include:
+
+  DRC
+  LVS
+  antenna
+  XOR
+  setup timing
+  hold timing
+  max slew
+  max capacitance
+  max fanout
+
+Expected done criteria:
+
+  DRC count 0
+  LVS errors 0
+  XOR differences 0
+  setup violations 0
+  hold violations 0
+
+If antenna violations exist, list exact count and report lines. For demo
+purposes, antenna can be tolerated only if clearly disclosed.
+
+Do not hide max slew/cap/fanout violations. List exact report paths and failing
+lines.
+
+Create:
+
+  reports/signoff_summary_image_compression.md
+
+The summary must include:
+
+  - pass/fail table
+  - exact report paths
+  - exact failing lines if any
+  - final GDS path
+  - final cocotb run path
+  - waveform path
+
+END PROMPT
+
+
+Prompt 11 - Optional GL Cocotb
+------------------------------
+
+BEGIN PROMPT
+
+Try the same image_compression_storage test in GL cocotb only if the GL views
+and Caravel files are complete.
+
+Package root:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Check for GL files:
+
+  test -f verilog/gl/user_project_wrapper.v && echo "GL netlist present"
+  find . -path "*user_project_wrapper*" -name "*.sdf" -print
+
+If GL netlist exists:
+
+  DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make cocotb-verify-image_compression_storage-gl
+
+If GL is blocked, diagnose the exact missing file and do not treat it as an RTL
+failure. Keep RTL cocotb plus OpenLane/signoff reports as required review
+evidence.
+
+Summarize:
+
+  - GL attempted? yes/no
+  - command used
+  - pass/fail if run
+  - blocking file if not run
+
+END PROMPT
+
+
+Prompt 12 - Package Final Demo
+------------------------------
+
+BEGIN PROMPT
+
+Package the final image-compression demo for review.
+
+Package root:
+
+  ~/bmsemi_x1_demo/BMSemi_SNN_image_comp
+
+Create/update:
+
+  README.md
+  MANIFEST.txt
+  PACKAGE_SIZE.txt
+  reports/final_image_compression_demo_summary.md
+
+README.md must explain:
+
+  - what this chip demo is
+  - why it uses X1
+  - how threshold image compression works
+  - how data is stored in X1
+  - how data is read back from X1
+  - address map
+  - command format
+  - firmware/cocotb testbench
+  - exact driven values
+  - how to run RTL cocotb
+  - how to open waveforms
+  - how to run OpenLane
+  - where final GDS is located
+  - signoff status
+  - known limitations
+
+Create manifest:
+
+  find . \
+    -path './dependencies' -prune -o \
+    -path './caravel' -prune -o \
+    -path './mgmt_core_wrapper' -prune -o \
+    -path './.git' -prune -o \
+    -type f -print | sort > MANIFEST.txt
+
+Create package size:
+
+  du -sh . > PACKAGE_SIZE.txt
+
+Collect important result paths:
+
+  find verilog/dv/cocotb/sim -name runs.log -o -name test.log -o -name waves.vcd
+  find results/final_views -type f | sort
+  find reports -type f | sort
+
+Final summary must include:
+
+  Functional proof:
+    RTL cocotb passed through Caravel firmware and X1 mailbox/storage path.
+
+  Layout proof:
+    wrapper GDS/DEF/LEF/LIB/SPEF/netlist generated by OpenLane/LibreLane.
+
+  Signoff proof:
+    DRC/LVS/XOR/timing/antenna summary with exact paths.
+
+  Demo proof:
+    bright pixel stored as X1 bit 1, dark pixel read as X1 bit 0.
+
+END PROMPT
+
+
+Known Passing Reference Values
+------------------------------
+
+These values came from the known passing run and should be used as reference
+when debugging:
+
+  Run tag:
+    run_25_Jun_11_13_38_62
+
+  Test:
+    RTL-image_compression_storage
+
+  Result:
+    passed
+
+  Seed:
+    1782366273
+
+  Duration:
+    0:07:14.50 with waveform dumping
+
+  Sim time:
+    2262150 ns
+
+  Cycles consumed:
+    90486
+
+  Summary:
+    TESTS=1 PASS=1 FAIL=0 SKIP=0
+
+  Passing message:
+    [TEST] X1 image threshold-compress/store/readback flow passed
+
+  Waveform:
+    waves.vcd
+
+  Approx waveform size:
+    177M
+
+
+One-Shot Prompt For Codex If You Want Full Automation
+-----------------------------------------------------
+
+If you want to give Codex one larger prompt after Ubuntu tools and Docker are
+working, use this:
+
+BEGIN PROMPT
+
+Using the BMsemi reference repo
+https://github.com/BMsemi/IMPACT_SNN_RERAM_submit, create a separate Caravel/X1
+demo package named ~/bmsemi_x1_demo/BMSemi_SNN_image_comp for a simple image
+compression and storage chip.
+
+Use the existing Caravel/OpenLane repo format. Keep Makefiles and folder layout.
+Remove the old adaptive/protocol/user_proj_example design from active RTL and
+OpenLane file lists. Keep X1 RTL support files and X1 macro views.
+
+Implement image_compression_storage.v and user_project_wrapper.v. The design
+must accept Wishbone commands at:
+
+  0x3000_0000 status
+  0x3000_0004 command
+  0x3000_0008 result
+  0x3000_000C compressed mask debug
+
+Command format:
+
+  [31:28] opcode
+  [27:24] block
+  [23:16] pixel
+  [15:8] threshold
+  [3:0] index
+
+Opcodes:
+
+  0x2 load pixel
+  0x3 compress block
+  0x4 read bit
+  0x5 clear block
+  0x6 read mask
+
+Compression behavior:
+
+  Store up to 16 8-bit pixels locally.
+  On COMPRESS_BLOCK, for each valid pixel, if pixel >= threshold, program X1
+  cell row=block col=index to 1. Otherwise leave it 0. Return a 16-bit
+  compressed mask and count.
+
+Use these X1 internal commands:
+
+  program = 32'hC000_00FF | (row << 25) | (col << 20)
+  reset   = (row << 25) | (col << 20)
+  read    = 32'h4000_0000 | (row << 25) | (col << 20)
+
+Create a firmware+cocotb test named image_compression_storage:
+
+  block        = 1
+  threshold    = 128
+  bright_index = 3
+  dark_index   = 8
+  bright_pixel = 200
+  dark_pixel   = 64
+
+Firmware must send:
+
+  0x21C80003 load bright pixel
+  0x21400008 load dark pixel
+  0x31008000 compress block
+  0x41000003 read bright bit
+  0x41000008 read dark bit
+
+Expected:
+
+  compressed mask = 0x0008
+  count = 1
+  bright read bit = 1
+  dark read bit = 0
+
+The cocotb Python test must boot Caravel, release CSB, wait for management GPIO
+1, and print:
+
+  [TEST] X1 image threshold-compress/store/readback flow passed
+
+Run:
+
+  DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make cocotb-verify-image_compression_storage-rtl
+
+Generate waveforms. Do not use -no_wave.
+
+Then run OpenLane/LibreLane for user_project_wrapper:
+
+  DISABLE_DEPRECATED_MAKEFILE_PROMPT=1 make user_project_wrapper
+
+Collect final GDS/DEF/LEF/netlist/LIB/SPEF and signoff reports. Report DRC, LVS,
+antenna, XOR, setup/hold timing, max slew/cap/fanout. DRC/LVS/XOR/setup/hold
+must be zero for pass. Antenna violations may be listed as demo-known issues but
+must not be hidden.
+
+Create README.md, the testbench README, MANIFEST.txt, PACKAGE_SIZE.txt, and a
+final report under reports/.
+
+Stop on any failure and summarize the exact command, log path, and fix.
+
+END PROMPT
+
